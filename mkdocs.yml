@@ -1,0 +1,66 @@
+site_name: "Finite difference method for heat transfer"
+site_description: "Illustration of the finite difference method for a heat transfer problem"
+site_author: "Bruno Blais"
+
+# Repository
+repo_name: chaos-polymtl/vibe-website-1
+repo_url: https://github.com/chaos-polymtl/vibe-website-1
+
+# Theme configuration
+theme:
+  name: material
+  logo: assets/chaos_logo_white_without_bkg.png
+  favicon: assets/chaos_logo_black_without_bkg.png
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: black
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: black
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+
+# Navigation
+nav:
+  - Home: index.md
+
+# Extensions
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - markdown_include.include:
+      base_path: docs
+  - admonition
+  - pymdownx.blocks.html
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+# Plugins
+plugins:
+  - search
+
+
