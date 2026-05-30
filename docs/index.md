@@ -11,6 +11,7 @@ hide:
     alt="CHAOS logo"
     style="height:80px;margin-left:1rem;"
     class="chaos-logo">
+  </span>
 </h1>
 
 <style>
@@ -25,7 +26,34 @@ hide:
 
 
 
-Cette page regroupe certains outils servant 
+Cette page regroupe certains outils servant à l'enseignement du génie chimique.
+
 ---
 
-*For more information, please explore the navigation menu above.*
+<div class="grid cards" markdown>
+
+-   :material-thermometer:{ .lg .middle } **Solveur de chaleur 2D**
+
+    ---
+
+    Résolution de l'équation de Poisson (∇²T = −S) par différences finies sur un domaine rectangulaire avec conditions aux limites de Dirichlet.
+
+    [:octicons-arrow-right-24: Lancer l'application](apps/application-1.md)
+
+-   :material-flask-outline:{ .lg .middle } **Application 2**
+
+    ---
+
+    Description de la deuxième application pédagogique. À venir.
+
+    [:octicons-arrow-right-24: En savoir plus](apps/application-2.md)
+
+-   :material-molecule:{ .lg .middle } **Application 3**
+
+    ---
+
+    Description de la troisième application pédagogique. À venir.
+
+    [:octicons-arrow-right-24: En savoir plus](apps/application-3.md)
+
+</div>
