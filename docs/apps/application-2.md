@@ -115,7 +115,11 @@ $$u(t) = K_p\, e(t) + K_i \int_0^{t} e(\tau)\,d\tau$$
 L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsque la vanne sature, on gèle l'accumulation de l'intégrale pour éviter l'**emballement intégral** (*anti-windup*), qui provoquerait sinon de grands dépassements.
 
 !!! tip "À expérimenter"
-    Décochez **Action intégrale** pour observer l'**écart statique** d'un régulateur P seul, puis réactivez-la pour le voir disparaître. Appliquez une **perturbation** sur le débit d'entrée pour visualiser le **rejet de perturbation**. Augmentez $K_p$ pour rendre la réponse plus rapide… puis **oscillante**.
+    - Décochez **Action intégrale**. Comment se comporte le contrôleur en régime permanent?
+    - Appliquez une **perturbation** sur le débit d'entrée pour visualiser le **rejet de perturbation**.
+    - Augmentez $K_p$ à de très grandes valeurs, quel comportement adopte le sytème?
+    - Que pouvez-vous dire sur la valeur de l'**erreur statique** en fonctin du gain proportionel du système?
+    - Dans quelles circonstances est-ce qu'un dépassement serait problématique?
 
 ---
 
