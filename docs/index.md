@@ -40,13 +40,13 @@ Cette page regroupe certains outils servant à l'enseignement du génie chimique
 
     [:octicons-arrow-right-24: Lancer l'application](apps/application-1.md)
 
--   :material-flask-outline:{ .lg .middle } **Application 2**
+-   :material-water-pump:{ .lg .middle } **Contrôle de niveau d'un réservoir**
 
     ---
 
-    Description de la deuxième application pédagogique. À venir.
+    Simulation dynamique d'un réservoir dont le niveau est régulé par un régulateur PI agissant sur la vanne de sortie. Dynamique des procédés et contrôle.
 
-    [:octicons-arrow-right-24: En savoir plus](apps/application-2.md)
+    [:octicons-arrow-right-24: Lancer l'application](apps/application-2.md)
 
 -   :material-molecule:{ .lg .middle } **Application 3**
 

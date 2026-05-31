@@ -48,7 +48,7 @@ nav:
   - Accueil: index.md
   - Applications:
     - Solveur de chaleur 2D: apps/application-1.md
-    - Application 2: apps/application-2.md
+    - Contrôle de niveau d'un réservoir: apps/application-2.md
     - Application 3: apps/application-3.md
 
 # Extensions
