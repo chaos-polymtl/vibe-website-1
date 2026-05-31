@@ -1,2 +1,2 @@
 # vibe-website-1
-Vibe generated MKDOCS website
+Ressources éducatives pour l'enseignement du génie chimique
