@@ -210,10 +210,10 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
         <input type="number" id="app2-hmax" value="2.0" step="0.1" min="0.2">
       </label>
       <label>Coefficient vanne Cv
-        <input type="number" id="app2-cv" value="0.5" step="0.05" min="0.05">
+        <input type="number" id="app2-cv" value="0.5" step="0.1" min="0.05">
       </label>
       <label>Débit entrée Q<sub>in</sub> (m³/s)
-        <input type="number" id="app2-qin" value="0.3" step="0.05" min="0">
+        <input type="number" id="app2-qin" value="0.3" step="0.1" min="0">
       </label>
     </div>
   </div>
@@ -228,10 +228,10 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
         <input type="number" id="app2-kp" value="2.0" step="0.1">
       </label>
       <label>Gain intégral K<sub>i</sub>
-        <input type="number" id="app2-ki" value="0.5" step="0.05">
+        <input type="number" id="app2-ki" value="0.5" step="0.1">
       </label>
       <label>Vitesse (×)
-        <input type="number" id="app2-speed" value="1.0" step="0.5" min="0.1" max="20">
+        <input type="number" id="app2-speed" value="1.0" step="0.1" min="0.1" max="20">
       </label>
       <label class="app2-check">
         <input type="checkbox" id="app2-pi" checked>
