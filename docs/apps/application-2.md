@@ -4,9 +4,88 @@
 
 Cette application simule la **dynamique** d'un réservoir et son **contrôle par rétroaction**. Le réservoir est alimenté par le haut avec un débit $Q_{in}$ et se vide par le bas à travers une **vanne** dont l'ouverture est ajustée automatiquement par un **régulateur PI** (proportionnel + intégral) afin de maintenir le niveau à la valeur de consigne.
 
+## Schéma du système
+
+Avant d'écrire le bilan, on identifie les grandeurs en jeu sur un schéma du réservoir : le débit **entrant** $Q_{in}$ qui alimente le réservoir par le haut, le débit **sortant** $Q_{out}$ qui s'évacue par la vanne du bas, la **section** $A$ du réservoir et le **niveau** de liquide $h$.
+
+<figure style="margin:1.2rem auto;max-width:340px;text-align:center;">
+<svg viewBox="0 0 320 350" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:var(--md-text-font,sans-serif);">
+  <defs>
+    <linearGradient id="app2-schem-water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+    <marker id="app2-schem-arrow" markerWidth="13" markerHeight="13" refX="9" refY="6"
+            orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L11,6 L0,12 Z" fill="#22c55e"/>
+    </marker>
+    <marker id="app2-schem-arrow-out" markerWidth="13" markerHeight="13" refX="9" refY="6"
+            orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L11,6 L0,12 Z" fill="#f97316"/>
+    </marker>
+  </defs>
+
+  <!-- ── INLET ──────────────────────────────────────────── -->
+  <!-- inlet pipe (grey stub entering the tank top) -->
+  <rect x="156" y="60" width="18" height="32" fill="#94a3b8"/>
+  <!-- Q_in flow arrow (points down into the tank) -->
+  <line x1="165" y1="26" x2="165" y2="58" stroke="#22c55e" stroke-width="5"
+        marker-end="url(#app2-schem-arrow)"/>
+  <text x="184" y="48" font-size="18" fill="#16a34a" font-style="italic">Q<tspan font-size="12" dy="4">in</tspan></text>
+
+  <!-- ── TANK ───────────────────────────────────────────── -->
+  <!-- water fill -->
+  <rect x="98" y="170" width="134" height="110" fill="url(#app2-schem-water)" opacity="0.9"/>
+  <!-- surface line -->
+  <line x1="95" y1="170" x2="235" y2="170" stroke="#bae6fd" stroke-width="1.5"/>
+  <!-- tank outline (open top) -->
+  <path d="M95,90 L95,280 L235,280 L235,90"
+        fill="none" stroke="var(--md-default-fg-color)" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- section A (dashed width near the top) -->
+  <line x1="95" y1="112" x2="235" y2="112" stroke="var(--md-default-fg-color--light,#888)"
+        stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="165" y="133" font-size="16" text-anchor="middle"
+        fill="var(--md-default-fg-color)" font-style="italic">section A</text>
+
+  <!-- level h: dimension line on the left -->
+  <line x1="76" y1="280" x2="76" y2="170" stroke="var(--md-default-fg-color--light,#888)" stroke-width="1.5"/>
+  <line x1="71" y1="280" x2="81" y2="280" stroke="var(--md-default-fg-color--light,#888)" stroke-width="1.5"/>
+  <line x1="71" y1="170" x2="81" y2="170" stroke="var(--md-default-fg-color--light,#888)" stroke-width="1.5"/>
+  <text x="66" y="230" font-size="18" text-anchor="end"
+        fill="var(--md-default-fg-color)" font-style="italic">h</text>
+
+  <!-- ── OUTLET ─────────────────────────────────────────── -->
+  <!-- outlet pipe (grey stub leaving the tank bottom) -->
+  <rect x="156" y="280" width="18" height="30" fill="#94a3b8"/>
+  <!-- valve symbol (bow-tie) on the outlet pipe -->
+  <path d="M153,288 L177,302 L177,288 L153,302 Z" fill="#f97316" stroke="#7c2d12" stroke-width="1.2"/>
+  <!-- Q_out flow arrow (points down out of the valve) -->
+  <line x1="165" y1="310" x2="165" y2="340" stroke="#f97316" stroke-width="5"
+        marker-end="url(#app2-schem-arrow-out)"/>
+  <text x="184" y="332" font-size="18" fill="#ea580c" font-style="italic">Q<tspan font-size="12" dy="4">out</tspan></text>
+</svg>
+<figcaption style="font-size:0.8rem;color:var(--md-default-fg-color--light);">
+Réservoir alimenté par un débit <i>Q<sub>in</sub></i> et vidangé par une vanne (<i>Q<sub>out</sub></i>).
+Le niveau <i>h</i> évolue selon le bilan de matière établi ci-dessous.
+</figcaption>
+</figure>
+
 ## Dynamique du procédé
 
-Un **bilan de matière** sur le réservoir (de section $A$) relie la variation du niveau $h$ aux débits entrant et sortant :
+On établit la dynamique du réservoir à partir d'un **bilan de matière** général. Sur le contenu du réservoir, le bilan s'écrit sous sa forme la plus générale :
+
+$$\text{Accumulation} = \text{Entrée} - \text{Sortie}$$
+
+c'est-à-dire que la masse accumulée dans le réservoir varie au rythme de la différence entre le débit massique entrant et le débit massique sortant :
+
+$$\frac{dm}{dt} = \dot{m}_{in} - \dot{m}_{out}$$
+
+La masse contenue dans le réservoir (de section $A$) s'exprime par $m = \rho\, V = \rho\, A\, h$, et les débits massiques sont reliés aux débits volumiques par $\dot{m}_{in} = \rho\, Q_{in}$ et $\dot{m}_{out} = \rho\, Q_{out}$ :
+
+$$\frac{d(\rho\, A\, h)}{dt} = \rho\, Q_{in} - \rho\, Q_{out}$$
+
+En supposant la **masse volumique $\rho$ constante** (liquide incompressible) ainsi qu'une section $A$ constante, on peut sortir $\rho$ et $A$ de la dérivée puis simplifier par $\rho$. Le bilan de matière se ramène alors à un **bilan de volume** sur le niveau $h$ :
 
 $$A\,\frac{dh}{dt} = Q_{in} - Q_{out}$$
 
