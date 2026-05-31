@@ -1,6 +1,7 @@
 site_name: "Outils pédagogique pour le génie chimique"
 site_description: "Site web contenant différents outils pour enseigner le génie chimique"
 site_author: "Bruno Blais"
+site_url: https://chaos-polymtl.github.io/vibe-website-1/
 
 # Repository
 repo_name: chaos-polymtl/vibe-website-1
