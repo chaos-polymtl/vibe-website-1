@@ -93,7 +93,7 @@ Le débit à travers la vanne de sortie suit la **loi de Torricelli** : il dépe
 
 $$Q_{out} = C_v\, u\, \sqrt{h}, \qquad u \in [0,\,1]$$
 
-où $C_v$ est le coefficient de la vanne. Cette relation est **non linéaire** : pour une même ouverture, le réservoir se vide plus vite lorsqu'il est plein. Laissé seul (boucle ouverte), le système atteint un **régime permanent** lorsque $Q_{out} = Q_{in}$ ; avant cela, il traverse un **régime transitoire** caractérisé par une constante de temps qui dépend du point de fonctionnement.
+où $C_v$ est le coefficient de la vanne. Cette relation est **non linéaire** : pour une même ouverture, le réservoir se vide plus vite lorsqu'il est plein. Laissé seul (boucle ouverte), le système atteint un **régime permanent** lorsque $Q_{out} = Q_{in}$ ; avant cela, il traverse un **régime transitoire** caractérisé par une constante de temps qui dépend du point de fonctionnement. La simulation propose d'ailleurs un mode **commande manuelle** qui permet d'imposer directement l'ouverture de la vanne $u$ et d'observer cette dynamique en boucle ouverte, sans régulateur.
 
 ## Principe de la rétroaction
 
@@ -115,6 +115,7 @@ $$u(t) = K_p\, e(t) + K_i \int_0^{t} e(\tau)\,d\tau$$
 L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsque la vanne sature, on gèle l'accumulation de l'intégrale pour éviter l'**emballement intégral** (*anti-windup*), qui provoquerait sinon de grands dépassements.
 
 !!! tip "À expérimenter"
+    - Activez la **commande manuelle** et fixez l'ouverture de la vanne (p. ex. 50 %). Observez la **dynamique en boucle ouverte** : comment le niveau atteint-il son régime permanent, et pour quelle ouverture obtient-on $Q_{out} = Q_{in}$?
     - Décochez **Action intégrale**. Comment se comporte le contrôleur en régime permanent?
     - Appliquez une **perturbation** sur le débit d'entrée pour visualiser le **rejet de perturbation**.
     - Augmentez $K_p$ à de très grandes valeurs, quel comportement adopte le sytème?
@@ -302,6 +303,19 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
   </div>
 
   <div class="app2-panel">
+    <div class="app2-panel-title">Commande de la vanne</div>
+    <div class="app2-inputs">
+      <label class="app2-check">
+        <input type="checkbox" id="app2-manual">
+        Commande manuelle (boucle ouverte)
+      </label>
+      <label>Ouverture vanne u (%)
+        <input type="number" id="app2-uman" value="50" step="5" min="0" max="100">
+      </label>
+    </div>
+  </div>
+
+  <div class="app2-panel" id="app2-pi-panel">
     <div class="app2-panel-title">Régulateur PI</div>
     <div class="app2-inputs">
       <label>Consigne h<sub>sp</sub> (m)
@@ -362,6 +376,8 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
       Ki:    n('app2-ki', 0.5),
       speed: Math.min(20, Math.max(0.1, n('app2-speed', 1.0))),
       pi:    document.getElementById('app2-pi').checked,
+      manual: document.getElementById('app2-manual').checked,
+      uman:  Math.min(100, Math.max(0, n('app2-uman', 50))),
     };
   }
 
@@ -379,20 +395,26 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
 
   // ── One physical sub-step (controller + plant) ──────────────────────────────────
   function step(p) {
-    const e = st.h - p.hsp;                       // direct-acting error
-    const P = p.Kp * e;
-    let I = 0;
-    if (p.pi) {
-      const uTrial = P + p.Ki * (st.integral + e * DT);
-      // Anti-windup: only integrate when not pushing further into saturation
-      if (!((uTrial > 1 && e > 0) || (uTrial < 0 && e < 0))) {
-        st.integral += e * DT;
-      }
-      I = p.Ki * st.integral;
-    } else {
+    if (p.manual) {
+      // Open-loop: the valve opening is imposed by the user, controller is off.
       st.integral = 0;
+      st.u = clamp(p.uman / 100, 0, 1);
+    } else {
+      const e = st.h - p.hsp;                     // direct-acting error
+      const P = p.Kp * e;
+      let I = 0;
+      if (p.pi) {
+        const uTrial = P + p.Ki * (st.integral + e * DT);
+        // Anti-windup: only integrate when not pushing further into saturation
+        if (!((uTrial > 1 && e > 0) || (uTrial < 0 && e < 0))) {
+          st.integral += e * DT;
+        }
+        I = p.Ki * st.integral;
+      } else {
+        st.integral = 0;
+      }
+      st.u = clamp(P + I, 0, 1);
     }
-    st.u = clamp(P + I, 0, 1);
 
     st.Qout = p.Cv * st.u * Math.sqrt(Math.max(st.h, 0));
     st.h = clamp(st.h + (p.Qin - st.Qout) / p.A * DT, 0, p.Hmax);
@@ -509,8 +531,11 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
   // ── Status line ────────────────────────────────────────────────────────────────
   function updateStatus(p) {
     const e = st.h - p.hsp;
+    const mode = p.manual
+      ? `mode manuel (boucle ouverte)`
+      : `écart e = ${e.toFixed(3)} m`;
     document.getElementById('app2-status').textContent =
-      `t = ${st.t.toFixed(1)} s   |   h = ${st.h.toFixed(3)} m   |   écart e = ${e.toFixed(3)} m   ` +
+      `t = ${st.t.toFixed(1)} s   |   h = ${st.h.toFixed(3)} m   |   ${mode}   ` +
       `|   vanne u = ${(st.u*100).toFixed(1)} %   |   Qin = ${p.Qin.toFixed(3)}   Qout = ${st.Qout.toFixed(3)} m³/s`;
   }
 
@@ -523,7 +548,24 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
     btn.textContent = st.running ? 'Pause' : 'Démarrer';
   }
 
-  function renderAll(p) { drawReservoir(p); drawPlots(p); updateStatus(p); }
+  // Grey out the controller panel in manual mode and the manual opening
+  // field in automatic mode, so it is clear which one is active.
+  function syncModeUI() {
+    const manual = document.getElementById('app2-manual').checked;
+    const piPanel = document.getElementById('app2-pi-panel');
+    if (piPanel) {
+      piPanel.style.opacity = manual ? '0.45' : '';
+      piPanel.style.pointerEvents = manual ? 'none' : '';
+    }
+    const uman = document.getElementById('app2-uman');
+    if (uman) uman.disabled = !manual;
+  }
+
+  function renderAll(p) {
+    // When paused in manual mode, preview the chosen valve opening directly.
+    if (!st.running && p.manual) st.u = clamp(p.uman / 100, 0, 1);
+    drawReservoir(p); drawPlots(p); updateStatus(p);
+  }
 
   // ── Animation loop (setInterval: keeps a steady cadence and survives a
   //    transient exception in one tick, unlike a self-rescheduling rAF) ────────────
@@ -567,10 +609,13 @@ L'ouverture est physiquement **bornée** : $u$ est saturée entre 0 et 1. Lorsqu
   // ── Live-editable parameters (no reset required) ─────────────────────────────────
   setTimeout(function () {
     ['app2-area','app2-hmax','app2-cv','app2-qin','app2-hsp',
-     'app2-kp','app2-ki','app2-speed','app2-pi'].forEach(function (id) {
+     'app2-kp','app2-ki','app2-speed','app2-pi','app2-manual','app2-uman'].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.addEventListener('input', function () { if (!st.running) renderAll(getParams()); });
     });
+    const manualBox = document.getElementById('app2-manual');
+    if (manualBox) manualBox.addEventListener('change', syncModeUI);
+    syncModeUI();
     setBadge();
     renderAll(getParams());
   }, 80);
